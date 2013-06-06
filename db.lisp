@@ -4,7 +4,6 @@
   (:export create insert select update erase
            show dump
            save-db load-db
-           into from where
            get-value))
 (in-package data-base)
 
@@ -40,15 +39,24 @@
                              (pop fields) (pop fields)))))
     `#'(lambda (obj) (and ,@(make-comparisons-list clauses)))))
 
+(defmacro upd-set (key val)
+  `#'(lambda (obj)
+       (setf (get-value ,key obj) ,val)))
+(defmacro upd-push (key val)
+  `#'(lambda (obj)
+       (push ,val (get-value ,key obj))))
+(defmacro upd-pull (key val)
+  (let ((key-name (gensym)))
+    `#'(lambda (obj)
+         (let ((,key-name ,key))
+           (setf (get-value ,key-name obj)
+                 (delete ,val (get-value ,key-name obj)))))))
 (defun update (table selector &rest upd)
   (let ((data (cadr table)))
     (loop for obj in data do
           (when (funcall selector obj)
-            (loop for upd-val = upd
-                  then (cddr upd-val)
-                  while upd-val do
-                  (setf (get-value (car upd-val) obj)
-                        (cadr upd-val)))))))
+            (loop for updater in upd do
+                  (funcall updater obj))))))
 
 (defun erase (table selector)
   (setf (cadr table)
