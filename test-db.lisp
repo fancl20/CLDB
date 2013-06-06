@@ -17,7 +17,7 @@
 ;(print (select (from :book) (where :title "so sad" :isbn 1)))
 
 (update (from :book) (where :isbn 1) (upd-set :isbn 4) (upd-push :Borrow 1))
-;(update (from :book) (where :isbn 4) (upd-pull :Borrow 1))
+(update (from :book) (where :isbn 4) (upd-pull :Borrow 1))
 ;(print (select (from :book) (where :title "so sad")))
 
 ;(erase (from :book) (where :Amount 100))

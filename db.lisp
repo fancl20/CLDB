@@ -4,12 +4,14 @@
   (:export create insert select update erase
            show dump
            save-db load-db
+           into from where
+           upd-set upd-push upd-pull
            get-value))
 (in-package data-base)
 
 (defvar *db* ())
 (defmacro get-value (key alist)
-  `(cadr (assoc ,key ,alist)))
+  `(cadr (assoc ,key ,alist :test #'equal)))
 
 (defun create (name column)
   (push (list name (list column ())) *db*))
@@ -50,7 +52,7 @@
     `#'(lambda (obj)
          (let ((,key-name ,key))
            (setf (get-value ,key-name obj)
-                 (delete ,val (get-value ,key-name obj)))))))
+                 (delete ,val (get-value ,key-name obj) :test #'equal))))))
 (defun update (table selector &rest upd)
   (let ((data (cadr table)))
     (loop for obj in data do
